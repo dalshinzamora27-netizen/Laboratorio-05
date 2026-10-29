@@ -2,46 +2,22 @@ package com.academico.infrastructure.adapter.out.persistence;
 
 import com.academico.domain.model.Estudiante;
 import com.academico.domain.repository.EstudianteRepository;
+import com.academico.infrastructure.config.ConfiguracionBD;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class EstudianteRepositoryPostgres implements EstudianteRepository {
 
-    private final String url;
-    private final String usuario;
-    private final String password;
-
-    public EstudianteRepositoryPostgres() {
-        this(
-                System.getenv().getOrDefault(
-                        "DB_URL",
-                        "jdbc:postgresql://localhost:5432/sistema_gestion_academica"
-                ),
-                System.getenv().getOrDefault("DB_USER", "postgres"),
-                System.getenv().getOrDefault("DB_PASSWORD", "123456")
-        );
-    }
-
-    // Constructor adicional para configurar o probar la conexión.
-    public EstudianteRepositoryPostgres(String url, String usuario, String password) {
-        this.url = url;
-        this.usuario = usuario;
-        this.password = password;
-    }
-
+    // La conexión se obtiene del Singleton ConfiguracionBD.
     private Connection conectar() throws SQLException {
-        if (password == null || password.isBlank()) {
-            throw new IllegalStateException(
-                    "Configura la variable de entorno DB_PASSWORD."
-            );
-        }
-
-        return DriverManager.getConnection(
-                url, usuario, password
-        );
+        return ConfiguracionBD.getInstance().crearConexion();
     }
-
 
     @Override
     public void guardar(Estudiante estudiante) {
@@ -170,7 +146,4 @@ public class EstudianteRepositoryPostgres implements EstudianteRepository {
             );
         }
     }
-
-
-
 }
