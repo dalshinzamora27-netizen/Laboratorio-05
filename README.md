@@ -1,74 +1,41 @@
-# Sistema de Gestión Académica - Arquitectura Hexagonal
+# Laboratorio 05 - Patrones de Diseño
 
-Proyecto del curso de Arquitectura de Software (UNSCH - Ingeniería de Sistemas).
-**Autor:** Dalshin Moysef Zamora Navarro
+**Curso:** IS488 Arquitectura de Software - UNSCH
+**Docente:** Ing. Luis Adderlin Ruiz Huaman
+**Estudiante:** Dalshin Moysef Zamora Navarro
 
-## Descripción
-Aplicación de consola en Java que gestiona **estudiantes** y **cursos**
-(registrar, listar, actualizar y eliminar) con arquitectura limpia
-(hexagonal). Los datos se guardan en **PostgreSQL**; para los cursos
-también existe un adaptador de respaldo en archivos JSON.
+Sistema de Gestión Académica (Estudiantes y Cursos) en Java con arquitectura
+hexagonal y PostgreSQL, al que se le aplicaron cinco patrones de diseño.
 
-## Arquitectura
+## Patrones implementados
 
-```
-presentation  ->  application  ->  domain  <-  infrastructure
- (UI consola)     (casos de uso)   (modelo +     (adaptadores:
-                                    interfaces)   PostgreSQL, JSON)
-```
+| Patrón | Tipo | Dónde está | Demo |
+|---|---|---|---|
+| Singleton | Creacional | `infrastructure/config/ConfiguracionBD` | `DemoSingleton` |
+| Decorator | Estructural | `infrastructure/decorator/CursoRepositoryConLog` | `DemoDecorator` |
+| Observer | Comportamiento | `application/observer` + `infrastructure/observer` | `DemoObserver` |
+| Builder (extra) | Creacional | `domain/model/CursoBuilder` | `DemoBuilder` |
+| Facade (extra) | Estructural | `application/facade/SistemaAcademicoFacade` | `DemoFacade` |
 
-Las dependencias apuntan hacia adentro. El dominio no conoce ni
-PostgreSQL ni JSON: define las interfaces y la infraestructura las
-implementa.
+## Estructura
 
 ```
 com.academico
-├── Main.java                      <- arma todas las piezas
-├── application
-│   ├── port/in                    <- puertos de entrada (casos de uso)
-│   │   ├── EstudianteUseCase
-│   │   └── CursoUseCase
-│   └── service
-│       ├── EstudianteService
-│       └── CursoService
-├── domain
-│   ├── model                      <- entidades
-│   │   ├── Estudiante
-│   │   └── Curso
-│   └── repository                 <- puertos de salida (interfaces)
-│       ├── EstudianteRepository
-│       └── CursoRepository
-├── infrastructure/adapter/out/persistence
-│   ├── EstudianteRepositoryPostgres
-│   ├── EstudianteRepositoryJson
-│   ├── CursoRepositoryPostgres
-│   └── CursoRepositoryJson
-└── presentation
-    ├── EstudianteUI
-    └── CursoUI
+├── application      (casos de uso, servicios, observer, facade)
+├── domain           (modelos, repositorios, builder)
+├── infrastructure   (adaptadores PostgreSQL/JSON, config, decorator, observers)
+├── presentation     (menús de consola)
+├── patrones         (demos de cada patrón)
+└── Main.java        (raíz de composición)
 ```
 
-## Base de datos
-El script `database/schema.sql` crea las tablas `estudiantes` y `cursos`.
-
-1. Crear la base: `CREATE DATABASE sistema_gestion_academica;`
-2. Ejecutar el script sobre esa base:
-   `psql -U postgres -d sistema_gestion_academica -f database/schema.sql`
-
-## Configuración
-La conexión se lee de variables de entorno (la contraseña nunca va en el código):
-
-| Variable | Por defecto |
-|---|---|
-| `DB_URL` | `jdbc:postgresql://localhost:5432/sistema_gestion_academica` |
-| `DB_USER` | `postgres` |
-| `DB_PASSWORD` | (obligatoria) |
-
 ## Requisitos
-- JDK 24
-- Maven (descarga Gson y el driver JDBC de PostgreSQL)
-- PostgreSQL 18
+
+- JDK 24 y Maven
+- PostgreSQL con la base `sistema_gestion_academica` (script en `database/schema.sql`)
+- Variable de entorno `DB_PASSWORD` (obligatoria). Opcionales: `DB_URL`, `DB_USER`.
 
 ## Ejecución
-Ejecutar la clase `com.academico.Main`. Para cambiar de PostgreSQL a JSON
-basta con cambiar el adaptador que se crea en `Main`, sin tocar los servicios.
+
+Compilar con `mvn compile` y ejecutar `Main` (sistema completo) o cualquier clase
+del paquete `patrones` para ver cada patrón por separado.
