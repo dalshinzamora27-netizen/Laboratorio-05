@@ -6,6 +6,7 @@ import com.academico.domain.repository.CursoRepository;
 import com.academico.domain.repository.EstudianteRepository;
 import com.academico.infrastructure.adapter.out.persistence.CursoRepositoryPostgres;
 import com.academico.infrastructure.adapter.out.persistence.EstudianteRepositoryPostgres;
+import com.academico.infrastructure.decorator.CursoRepositoryConLog;
 import com.academico.presentation.CursoUI;
 import com.academico.presentation.EstudianteUI;
 
@@ -16,11 +17,13 @@ public class Main {
     public static void main(String[] args) {
 
         // 1. Adaptadores de salida: PostgreSQL.
-        //    Para guardar en JSON se usaría: new CursoRepositoryJson()
         EstudianteRepository estudianteRepository =
                 new EstudianteRepositoryPostgres();
+
+        // PATRÓN DECORATOR: el repositorio de cursos se envuelve para
+        // registrar cada operación, sin modificar CursoRepositoryPostgres.
         CursoRepository cursoRepository =
-                new CursoRepositoryPostgres();
+                new CursoRepositoryConLog(new CursoRepositoryPostgres());
 
         // 2. Núcleo de la aplicación: casos de uso.
         EstudianteService estudianteService =
