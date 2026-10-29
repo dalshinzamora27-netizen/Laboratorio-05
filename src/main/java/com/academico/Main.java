@@ -7,6 +7,8 @@ import com.academico.domain.repository.EstudianteRepository;
 import com.academico.infrastructure.adapter.out.persistence.CursoRepositoryPostgres;
 import com.academico.infrastructure.adapter.out.persistence.EstudianteRepositoryPostgres;
 import com.academico.infrastructure.decorator.CursoRepositoryConLog;
+import com.academico.infrastructure.observer.AuditoriaCursoObserver;
+import com.academico.infrastructure.observer.NotificacionCursoObserver;
 import com.academico.presentation.CursoUI;
 import com.academico.presentation.EstudianteUI;
 
@@ -30,6 +32,10 @@ public class Main {
                 new EstudianteService(estudianteRepository);
         CursoService cursoService =
                 new CursoService(cursoRepository);
+
+        // PATRÓN OBSERVER: se suscriben los observadores al registrar cursos.
+        cursoService.agregarObservador(new AuditoriaCursoObserver());
+        cursoService.agregarObservador(new NotificacionCursoObserver());
 
         // 3. Presentación.
         EstudianteUI estudianteUI = new EstudianteUI(estudianteService);
