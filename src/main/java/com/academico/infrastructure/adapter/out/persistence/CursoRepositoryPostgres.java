@@ -2,9 +2,9 @@ package com.academico.infrastructure.adapter.out.persistence;
 
 import com.academico.domain.model.Curso;
 import com.academico.domain.repository.CursoRepository;
+import com.academico.infrastructure.config.ConfiguracionBD;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,35 +17,9 @@ public class CursoRepositoryPostgres implements CursoRepository {
     // Código SQLSTATE de PostgreSQL para "clave duplicada".
     private static final String ID_DUPLICADO = "23505";
 
-    private final String url;
-    private final String usuario;
-    private final String password;
-
-    public CursoRepositoryPostgres() {
-        this(
-                System.getenv().getOrDefault(
-                        "DB_URL",
-                        "jdbc:postgresql://localhost:5432/sistema_gestion_academica"
-                ),
-                System.getenv().getOrDefault("DB_USER", "postgres"),
-                System.getenv("DB_PASSWORD")
-        );
-    }
-
-    // Constructor adicional para configurar o probar la conexión.
-    public CursoRepositoryPostgres(String url, String usuario, String password) {
-        this.url = url;
-        this.usuario = usuario;
-        this.password = password;
-    }
-
+    // La conexión se obtiene del Singleton ConfiguracionBD.
     private Connection conectar() throws SQLException {
-        if (password == null || password.isBlank()) {
-            throw new IllegalStateException(
-                    "Configura la variable de entorno DB_PASSWORD."
-            );
-        }
-        return DriverManager.getConnection(url, usuario, password);
+        return ConfiguracionBD.getInstance().crearConexion();
     }
 
     @Override
